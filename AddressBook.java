@@ -1,11 +1,16 @@
 package com.bridgelabz;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
+/**
+ * Purpose - Ability to view Persons by City or State
+ */
 
 public class AddressBook {
 	public ArrayList<Contacts> contactList = new ArrayList<>();
+	public static Map<String, Contacts> nameHashMap = new HashMap<String, Contacts>();
+	public static Map<String, Contacts> cityHashMap = new HashMap<String, Contacts>();
+	public static Map<String, Contacts> stateHashMap = new HashMap<String, Contacts>();
+
 
 	public boolean addContact(Contacts contact) {
 		List<Contacts> checkByName = searchByName(contact.getFirstName());
@@ -17,8 +22,7 @@ public class AddressBook {
 	}
 
 	// method for search contact by name
-	public List<Contacts> searchByName(String name) {
-		// collection list of element
+	public List<Contacts> searchByName(String name) {// collection list of element
 		// stream and lambda for find filter given name from arraylist
 		return contactList.stream().filter(person -> person.getFirstName().equalsIgnoreCase(name))
 				.collect(Collectors.toList());
@@ -33,6 +37,20 @@ public class AddressBook {
 		return contactList.stream().filter(person -> person.getState().equalsIgnoreCase(state))
 				.collect(Collectors.toList());
 	}
+
+	// Method to view person
+	public static void viewByName(Map<String, Contacts> nameHashMap) {
+		nameHashMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + "=" + e.getValue().toString()));
+	}
+
+	public static void viewByCity(Map<String, Contacts> cityHashMap) {
+		cityHashMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + "=" + e.getValue().toString()));
+	}
+
+	public static void viewByState(Map<String, Contacts> stateHashMap) {
+		stateHashMap.entrySet().stream().forEach(e -> System.out.println(e.getKey() + "=" + e.getValue().toString()));
+	}
+
 
 	// method for edit contact
 	public boolean editContact(Contacts current, Contacts edit) {
@@ -63,7 +81,6 @@ public class AddressBook {
 
 	// method for adding details
 	public static Contacts readContact() {
-		
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Enter First Name: ");
 		String firstName = sc.nextLine();
@@ -83,7 +100,7 @@ public class AddressBook {
 		sc.nextLine();
 		System.out.print("Enter Email ID: ");
 		String email = sc.nextLine();
-		return new Contacts (firstName, lastName, address, city, state, zip, phoneNumber,email);
+		return new Contacts();
 	}
 
 	// method for show option for contacts
@@ -101,7 +118,7 @@ public class AddressBook {
 			sc.nextLine();
 			switch (choice) {
 			case 1:
-				if (addressBook.addContact(readContact()))                              // call addcontact with passing method readcontact
+				if (addressBook.addContact(readContact())) // call addcontact with passing method readcontact
 					System.out.println("Cotact Added Successfully....!");
 				else
 					System.out.println("Contact Already Exist....!");
@@ -109,14 +126,14 @@ public class AddressBook {
 			case 2:
 				System.out.println("Enter First name to edit contact: ");
 				String name = sc.nextLine();
-				List<Contacts> equalName = addressBook.searchByName(name);                // list of equal first name
+				List<Contacts> equalName = addressBook.searchByName(name);// list of equal first name
 				if (equalName.isEmpty())// if not match found
 					System.out.println("Data Not Found....!");
-				else if (equalName.size() == 1) {                                        // if only one equal match found
-					addressBook.editContact(equalName.get(0), readContact());           // call edit method with name and method
+				else if (equalName.size() == 1) {// if only one equal match found
+					addressBook.editContact(equalName.get(0), readContact()); // call edit method with name and method
 					// parameter
 					System.out.println("Contact data modified....!");
-				} else {                                                                // if more than one firstname match found in equal name list
+				} else {// if more than one firstname match found in equal name list
 					equalName.forEach(x -> System.out.println(equalName.indexOf(x) + "  " + x.toString()));
 					System.out.println("Enter index to edit : ");
 					int i = sc.nextInt();
@@ -144,7 +161,7 @@ public class AddressBook {
 				}
 				break;
 			case 4:
-				System.out.println(addressBook.toString());    // call tostring method for showing details
+				System.out.println(addressBook.toString()); // call tostring method for showing details
 				break;
 			case 5:
 				return;
@@ -186,8 +203,59 @@ public class AddressBook {
 		default:
 			System.out.println("INVALID CHOICE!");
 		}
-	
 	}
+	// method for view element by option
+	public static void viewByOption(Map<String, AddressBook> addressBookMap) {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("1. View By name");
+		System.out.println("2. View By city");
+		System.out.println("3. View By state");
+		System.out.println("4. Back");
+		System.out.print("Enter Your choice: ");
+		int choice = sc.nextInt();
+		sc.nextLine();
+		switch (choice) {
+		case 1:
+			viewByName(nameHashMap);
+			break;
+		case 2:
+			viewByCity(cityHashMap);
+			break;
+		case 3:
+			viewByState(stateHashMap);
+			break;
+		case 4:
+			return;
+		default:
+			System.out.println("INVALID CHOICE!");
+		}
+	}
+
+	//method to count element by option
+	public void countByOption() {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("1. Count City ");
+		System.out.println("2. Count State");
+		System.out.println("3. Back ");
+		System.out.println("Enter Your Choice : ");
+		int choice = sc.nextInt();
+		sc.nextLine();
+		switch (choice) {
+		case 1:
+			Map<String, Long> countCity = contactList.stream()
+			.collect(Collectors.groupingBy(e -> e.getCity(), Collectors.counting()));
+			System.out.println(countCity + "\n");
+			break;
+		case 2:
+			Map<String, Long> countState = contactList.stream()
+			.collect(Collectors.groupingBy(e -> e.getState(), Collectors.counting()));
+			System.out.println(countState + "\n");
+			break;
+		case 3:
+			return;
+		default:
+			System.out.println("Invalid Option");
+		}
+	}
+
 }
-
-
